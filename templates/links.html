@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Ryan Drew{% endblock %}
+
+{% block content %}
+<article class="page">
+  {{ content | safe }}
+</article>
+{% endblock %}

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Ryan Drew{% endblock %}</title>
+  {% if description %}<meta name="description" content="{{ description }}">{% endif %}
+  <link rel="stylesheet" href="{{ base_path | safe }}static/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="container">
+      <a class="site-title" href="{{ base_path | safe }}">Ryan Drew</a>
+      <div class="nav-links">
+        <a href="{{ base_path | safe }}">Home</a>
+        <a href="{{ base_path | safe }}blog/">Blog</a>
+        <a href="{{ base_path | safe }}links/">Links</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; {{ year }} Ryan Drew.</p>
+    </div>
+  </footer>
+</body>
+</html>

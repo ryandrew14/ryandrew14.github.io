@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - Ryan Drew{% endblock %}
+
+{% block content %}
+<article class="page post">
+  <h1>{{ post.title }}</h1>
+  <p class="post-date">{{ post.date }}</p>
+  {{ post.content | safe }}
+  <p><a href="{{ base_path | safe }}blog/">&larr; Back to all posts</a></p>
+</article>
+{% endblock %}
