@@ -207,6 +207,12 @@ fn load_posts(dir: impl AsRef<Path>) -> Vec<Post> {
     let dir = dir.as_ref();
     let mut posts = Vec::new();
 
+    // I haven't written blog posts yet, this ensures fs::read_dir doesn't panic in this case
+    // TODO remove when I write my first post
+    if !dir.exists() {
+        return posts;
+    }
+
     let entries = fs::read_dir(dir).unwrap_or_else(|e| panic!("failed to read {dir:?}: {e}"));
     for entry in entries {
         let entry = entry.expect("failed to read directory entry");
