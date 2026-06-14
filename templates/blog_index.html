@@ -4,6 +4,7 @@
 
 {% block content %}
 <h1>Blog</h1>
+{% if posts %}
 <ul class="post-list">
   {% for post in posts %}
   <li class="post-list-item">
@@ -13,4 +14,7 @@
   </li>
   {% endfor %}
 </ul>
+{% else %}
+<p class="post-list-empty">nothing here yet</p>
+{% endif %}
 {% endblock %}

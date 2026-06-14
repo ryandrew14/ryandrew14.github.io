@@ -151,6 +151,11 @@ blockquote {
   color: var(--muted);
 }
 
+.post-list-empty {
+  color: var(--muted);
+  font-style: italic;
+}
+
 .post .post-date {
   margin-bottom: 1.5rem;
 }
