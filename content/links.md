@@ -2,7 +2,7 @@
 title = "Links"
 +++
 
-## Links
+# Links
 
 - [GitHub](https://github.com/ryandrew14)
 - [Email](mailto:ryan.drew14@gmail.com)
