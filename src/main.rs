@@ -28,6 +28,16 @@ const STATIC_DIR: &str = "static";
 const OUTPUT_DIR: &str = "dist";
 
 fn main() {
+    let serve = std::env::args().skip(1).any(|arg| arg == "serve");
+
+    build();
+
+    if serve {
+        serve_dir(Path::new(OUTPUT_DIR), "127.0.0.1:8000");
+    }
+}
+
+fn build() {
     let base_path = std::env::var("SITE_BASE_PATH").unwrap_or_else(|_| "/".to_string());
     let base_path = if base_path.ends_with('/') {
         base_path
@@ -94,6 +104,65 @@ fn main() {
     }
 
     println!("Built site into ./{OUTPUT_DIR} ({} blog posts)", posts.len());
+}
+
+/// Serves the static files under `root` over HTTP until the process is killed.
+fn serve_dir(root: &Path, addr: &str) {
+    let server = tiny_http::Server::http(addr)
+        .unwrap_or_else(|e| panic!("failed to start server on {addr}: {e}"));
+    println!("Serving ./{OUTPUT_DIR} at http://{addr} (Ctrl-C to stop)");
+
+    for request in server.incoming_requests() {
+        // Strip query string and leading slash, default the root to index.html.
+        let url = request.url().split('?').next().unwrap_or("/");
+        let rel = url.trim_start_matches('/');
+        let mut path = root.join(rel);
+        if path.is_dir() {
+            path = path.join("index.html");
+        }
+
+        // Guard against path traversal: the resolved path must stay under root.
+        let canonical_root = fs::canonicalize(root).ok();
+        let in_root = fs::canonicalize(&path)
+            .ok()
+            .zip(canonical_root)
+            .is_some_and(|(p, base)| p.starts_with(base));
+
+        let response = if in_root {
+            match fs::read(&path) {
+                Ok(bytes) => {
+                    let content_type = content_type_for(&path);
+                    let header = tiny_http::Header::from_bytes(&b"Content-Type"[..], content_type)
+                        .expect("valid header");
+                    tiny_http::Response::from_data(bytes).with_header(header)
+                }
+                Err(_) => tiny_http::Response::from_string("404 Not Found").with_status_code(404),
+            }
+        } else {
+            tiny_http::Response::from_string("404 Not Found").with_status_code(404)
+        };
+
+        let _ = request.respond(response);
+    }
+}
+
+fn content_type_for(path: &Path) -> &'static str {
+    match path.extension().and_then(|e| e.to_str()) {
+        Some("html") => "text/html; charset=utf-8",
+        Some("css") => "text/css; charset=utf-8",
+        Some("js") => "text/javascript; charset=utf-8",
+        Some("json") => "application/json",
+        Some("svg") => "image/svg+xml",
+        Some("png") => "image/png",
+        Some("jpg") | Some("jpeg") => "image/jpeg",
+        Some("gif") => "image/gif",
+        Some("webp") => "image/webp",
+        Some("ico") => "image/x-icon",
+        Some("woff2") => "font/woff2",
+        Some("woff") => "font/woff",
+        Some("txt") => "text/plain; charset=utf-8",
+        _ => "application/octet-stream",
+    }
 }
 
 fn write_page(tera: &Tera, template: &str, ctx: &Context, dest: &Path) {
