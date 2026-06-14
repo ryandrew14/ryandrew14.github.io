@@ -35,8 +35,6 @@ jobs:
 
       - name: Build site
         run: cargo run --release
-        env:
-          SITE_BASE_PATH: /${{ github.event.repository.name }}/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
